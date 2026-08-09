@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tamil Film Music Jeopardy</title>
+<style>
+  :root {
+    --board-blue: #060ce9;
+    --board-blue-dark: #0400a3;
+    --gold: #ffcc00;
+    --tile-blue: #1621de;
+    --tile-blue-hover: #2a35ff;
+    --tile-used: #0a0c5c;
+    --buzz-red: #e0203a;
+    --buzz-red-dark: #9c1526;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at top, #0a10ff 0%, var(--board-blue-dark) 70%);
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+
+  h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 #000, 0 0 20px rgba(255,204,0,0.4);
+    margin: 8px 0 4px;
+    text-align: center;
+    font-size: clamp(24px, 4vw, 42px);
+  }
+
+  .subtitle {
+    color: #cfd3ff;
+    margin-bottom: 24px;
+    font-size: 14px;
+    text-align: center;
+    max-width: 640px;
+  }
+
+  /* ---------- Login / join screen ---------- */
+  #loginScreen { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--board-blue-dark);
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+
+  .tabs button {
+    background: transparent;
+    color: #cfd3ff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tabs button.active {
+    background: var(--gold);
+    color: var(--board-blue-dark);
+  }
+
+  .auth-card {
+    background: var(--board-blue);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 420px;
+    padding: 28px 26px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 0 3px #000a;
+    display: none;
+    flex-direction: column;
+  }
+
+  .auth-card.active { display: flex; }
+
+  .auth-card h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--gold);
+    text-align: center;
+    text-shadow: 1px 1px 0 #000;
+    margin: 0 0 4px;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .auth-card .hint {
+    color: #cfd3ff;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .field-label {
+    color: #cfd3ff;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 10px 0 5px;
+  }
+
+  .auth-card input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 2px solid var(--board-blue-dark);
+    font-size: 15px;
+    outline: none;
+    background: white;
+    color: #0a0c5c;
+  }
+
+  .auth-card input:focus { border-color: var(--gold); }
+
+  .auth-card button.primary {
+    margin-top: 18px;
+    background: var(--gold);
+    color: var(--board-blue-dark);
+    border: none;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+  }
+
+  .auth-card button.primary:hover:not(:disabled) { background: #ffe066; }
+
+  .auth-card button.primary:disabled {
+    background: #4a4f9e;
+    color: #9aa0ff;
+    cursor: not-allowed;
+  }
+
+  .error-text {
+    color: #ff8b8b;
+    font-size: 13px;
+    margin-top: 10px;
+    min-height: 16px;
+    text-align: center;
+  }
+
+  .status-text {
+    color: #9aa0ff;
+    font-size: 13px;
+    margin-top: 10px;
+    text-align: center;
+    font-style: italic;
+    min-height: 16px;
+  }
+
+  /* Code reveal after hosting */
+  .code-reveal {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .code-reveal.active { display: flex; }
+
+  .code-box {
+    background: var(--board-blue-dark);
+    border: 2px dashed var(--gold);
+    border-radius: 8px;
+    padding: 14px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin: 10px 0;
+    word-break: break-all;
+    text-align: center;
+  }
+
+  .code-actions { display: flex; gap: 8px; }
+
+  .code-actions button {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+  }
+
+  .code-actions button:hover { background: rgba(255,204,0,0.15); }
+
+  /* ---------- Game screen shell ---------- */
+  #gameScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .game-code-badge {
+    background: var(--board-blue-dark);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  #adminView, #playerView {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* ---------- Board (admin) ---------- */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(140px, 1fr));
+    gap: 6px;
+    width: 100%;
+    max-width: 1100px;
+    background: var(--board-blue);
+    padding: 8px;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 0 3px #000a;
+  }
+
+  .category {
+    background: var(--board-blue-dark);
+    color: var(--gold);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 6px;
+    border-radius: 6px;
+    min-height: 70px;
+    font-size: clamp(12px, 1.6vw, 17px);
+    line-height: 1.25;
+    box-shadow: inset 0 0 0 2px #000c;
+    text-shadow: 1px 1px 0 #000;
+  }
+
+  .tile {
+    background: var(--tile-blue);
+    color: var(--gold);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: bold;
+    font-size: clamp(20px, 3vw, 32px);
+    text-shadow: 2px 2px 0 #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 5 / 3;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    box-shadow: inset 0 0 0 2px #000c, 0 3px 0 #00006b;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+
+  .tile:hover:not(.used):not(.locked) {
+    background: var(--tile-blue-hover);
+    transform: scale(1.03);
+  }
+
+  .tile.used {
+    background: var(--tile-used);
+    color: #333a8f;
+    cursor: default;
+    box-shadow: inset 0 0 0 2px #000c;
+  }
+
+  .tile.used:hover { transform: none; }
+
+  .tile.locked { cursor: default; }
+
+  .tile.active-tile {
+    box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(255,204,0,0.8);
+  }
+
+  .controls {
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .controls button {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+
+  .controls button:hover {
+    background: rgba(255,204,0,0.15);
+  }
+
+  /* ---------- Scoreboard (admin) ---------- */
+  .scoreboard {
+    margin-top: 28px;
+    width: 100%;
+    max-width: 1100px;
+    background: var(--board-blue-dark);
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: inset 0 0 0 2px #000a;
+  }
+
+  .scoreboard-title {
+    color: var(--gold);
+    font-family: Georgia, 'Times New Roman', serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .scoreboard-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .score-chip {
+    background: var(--tile-blue);
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 90px;
+    text-align: center;
+    box-shadow: inset 0 0 0 2px #000c;
+  }
+
+  .score-chip.on-the-clock { box-shadow: inset 0 0 0 2px var(--gold); }
+
+  .score-chip .p-name {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+    word-break: break-word;
+  }
+
+  .score-chip .p-score {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 2px;
+  }
+
+  .scoreboard-empty {
+    color: #9aa0ff;
+    font-size: 13px;
+    text-align: center;
+    font-style: italic;
+  }
+
+  .footer-note {
+    margin-top: 26px;
+    color: #9aa0ff;
+    font-size: 12px;
+    text-align: center;
+    max-width: 640px;
+  }
+
+  /* ---------- Active question modal (admin) ---------- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+
+  .overlay.active { display: flex; }
+
+  .card {
+    background: var(--board-blue);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 640px;
+    min-height: 320px;
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 0 3px #000a;
+    position: relative;
+  }
+
+  .card .cat-label {
+    color: #cfd3ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .card .points {
+    color: var(--gold);
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .card .question-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(18px, 2.6vw, 26px);
+    color: white;
+    text-shadow: 1px 1px 0 #000;
+    line-height: 1.4;
+  }
+
+  .card .placeholder {
+    color: #9aa0ff;
+    font-size: 14px;
+    margin-top: 14px;
+    font-style: italic;
+  }
+
+  .card .answer-text {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(18px, 2.4vw, 24px);
+    color: var(--gold);
+    text-shadow: 1px 1px 0 #000;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255,204,0,0.4);
+    display: none;
+    width: 100%;
+  }
+
+  .card .answer-text.revealed { display: block; }
+
+  .card button.show-answer {
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: none;
+  }
+
+  .card button.show-answer:hover { background: rgba(255,204,0,0.15); }
+
+  .aq-status {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 22px;
+    background: var(--board-blue-dark);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+
+  .aq-status .aq-label {
+    color: #9aa0ff;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .aq-status .aq-answerer {
+    color: var(--gold);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: bold;
+    min-height: 28px;
+  }
+
+  .aq-status .aq-value {
+    color: white;
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  .aq-status .aq-queue {
+    color: #9aa0ff;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .aq-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 16px;
+  }
+
+  .aq-actions button {
+    flex: 1;
+    border: none;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    padding: 12px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: 13px;
+  }
+
+  .aq-actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-yes { background: #2ecc71; color: #003b1c; }
+  .btn-yes:hover:not(:disabled) { background: #4be089; }
+  .btn-no { background: #e74c3c; color: #4a0d07; }
+  .btn-no:hover:not(:disabled) { background: #f16455; }
+
+  .nobody-link {
+    margin-top: 14px;
+    background: none;
+    border: none;
+    color: #9aa0ff;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* ---------- Player / buzzer screen ---------- */
+  .buzzer-shell {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .my-score-badge {
+    background: var(--board-blue-dark);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    padding: 8px 20px;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .my-score-badge .msb-label {
+    color: #9aa0ff;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .my-score-badge .msb-value {
+    color: var(--gold);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .question-box {
+    display: none;
+    width: 100%;
+    background: var(--board-blue);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 22px;
+    text-align: center;
+    box-shadow: inset 0 0 0 2px #000a;
+  }
+
+  .question-box.active { display: block; }
+
+  .question-box .qb-cat {
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .question-box .qb-value {
+    color: #cfd3ff;
+    font-size: 13px;
+    margin: 4px 0 10px;
+  }
+
+  .question-box .qb-clue {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: white;
+    font-size: clamp(15px, 4vw, 19px);
+    line-height: 1.4;
+  }
+
+  .waiting-text {
+    color: #cfd3ff;
+    font-size: 15px;
+    text-align: center;
+    margin-bottom: 22px;
+    min-height: 20px;
+  }
+
+  .buzzer-btn {
+    width: min(70vw, 260px);
+    height: min(70vw, 260px);
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle at 35% 30%, #ff5a6e, var(--buzz-red) 55%, var(--buzz-red-dark) 100%);
+    color: white;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: bold;
+    font-size: clamp(24px, 6vw, 34px);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+    box-shadow: 0 10px 0 #6e0c17, 0 14px 30px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+
+  .buzzer-btn:active:not(:disabled) {
+    transform: translateY(8px);
+    box-shadow: 0 2px 0 #6e0c17, 0 6px 16px rgba(0,0,0,0.5);
+  }
+
+  .buzzer-btn:disabled {
+    background: radial-gradient(circle at 35% 30%, #6a6f9e, #3a3f7e 55%, #23265c 100%);
+    box-shadow: 0 10px 0 #14163a, 0 14px 30px rgba(0,0,0,0.5);
+    cursor: not-allowed;
+    color: #b8bce8;
+  }
+
+  .buzzer-status-text {
+    margin-top: 20px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 17px;
+    color: var(--gold);
+    text-align: center;
+    min-height: 24px;
+  }
+
+  @media (max-width: 700px) {
+    .board { grid-template-columns: repeat(5, minmax(60px, 1fr)); gap: 4px; }
+    .category { min-height: 56px; padding: 6px 3px; }
+    .tile { font-size: clamp(14px, 4vw, 22px); }
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.17.1/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <h1>Tamil Film Music Jeopardy</h1>
+
+  <!-- ---------- Login / join screen ---------- -->
+  <div id="loginScreen">
+    <div class="subtitle">Everyone plays from their own device. Whoever hosts becomes the game admin (Kash) and controls the board; everyone else joins as a player with a buzzer.</div>
+
+    <div class="tabs">
+      <button id="hostTabBtn" class="active">Host (Admin)</button>
+      <button id="joinTabBtn">Join as Player</button>
+    </div>
+
+    <!-- Host card -->
+    <div class="auth-card active" id="hostCard">
+      <h2>Host a New Game</h2>
+      <div class="hint">Pick a username (e.g. Kash) and start the game. You'll run the board and get a code to send to everyone else.</div>
+
+      <div class="field-label">Your Username</div>
+      <input type="text" id="hostUsernameInput" placeholder="Enter username" maxlength="20" autocomplete="off">
+
+      <button class="primary" id="hostBtn">Host New Game</button>
+      <div class="error-text" id="hostError"></div>
+      <div class="status-text" id="hostStatus"></div>
+
+      <div class="code-reveal" id="codeReveal">
+        <div class="hint" style="margin-bottom:0;">You're hosting! Share this code with your players:</div>
+        <div class="code-box" id="codeBox"></div>
+        <div class="code-actions">
+          <button id="copyCodeBtn">Copy Code</button>
+        </div>
+        <button class="primary" id="hostContinueBtn" style="margin-top:16px;">Continue to Board</button>
+      </div>
+    </div>
+
+    <!-- Join card -->
+    <div class="auth-card" id="joinCard">
+      <h2>Join as a Player</h2>
+      <div class="hint">Enter the game code your host sent you, plus any username — no password needed.</div>
+
+      <div class="field-label">Game Code</div>
+      <input type="text" id="joinCodeInput" placeholder="Paste game code" autocomplete="off">
+
+      <div class="field-label">Your Username</div>
+      <input type="text" id="joinUsernameInput" placeholder="Enter username" maxlength="20" autocomplete="off">
+
+      <button class="primary" id="joinBtn">Join Game</button>
+      <div class="error-text" id="joinError"></div>
+      <div class="status-text" id="joinStatus"></div>
+    </div>
+  </div>
+
+  <!-- ---------- Game screen ---------- -->
+  <div id="gameScreen">
+    <div class="game-code-badge" id="gameCodeBadge"></div>
+
+    <!-- ===== Admin view ===== -->
+    <div id="adminView">
+      <div class="subtitle">Click a tile to start that question. Everyone's buzzers go live the instant you do.</div>
+
+      <div class="board" id="board"></div>
+
+      <div class="controls">
+        <button id="resetBtn">Reset Board</button>
+        <button id="leaveBtn">Leave Game</button>
+      </div>
+
+      <div class="footer-note">Tiles turn dark once answered. Scores sync instantly across every device.</div>
+
+      <div class="scoreboard">
+        <div class="scoreboard-title">Players</div>
+        <div class="scoreboard-list" id="scoreboardList"></div>
+        <div class="scoreboard-empty" id="scoreboardEmpty" style="display:none;">No players yet.</div>
+      </div>
+    </div>
+
+    <!-- ===== Player view ===== -->
+    <div id="playerView">
+      <div class="buzzer-shell">
+        <div class="my-score-badge">
+          <div class="msb-label">Your Score</div>
+          <div class="msb-value" id="myScoreValue">$0</div>
+        </div>
+
+        <div class="question-box" id="questionBox">
+          <div class="qb-cat" id="qbCat"></div>
+          <div class="qb-value" id="qbValue"></div>
+          <div class="qb-clue" id="qbClue"></div>
+        </div>
+
+        <div class="waiting-text" id="waitingText">Waiting for the host to start a question…</div>
+
+        <button class="buzzer-btn" id="buzzerBtn" disabled>BUZZ</button>
+
+        <div class="buzzer-status-text" id="buzzerStatusText"></div>
+      </div>
+
+      <div class="controls">
+        <button id="leaveBtnPlayer">Leave Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Active question modal (admin only) ===== -->
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <div class="cat-label" id="catLabel"></div>
+      <div class="points" id="pointsLabel"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="placeholder" id="placeholderNote">Question and answer coming soon.</div>
+      <button class="show-answer" id="showAnswerBtn">Show Answer</button>
+      <div class="answer-text" id="answerText"></div>
+
+      <div class="aq-status">
+        <div class="aq-label">On the clock</div>
+        <div class="aq-answerer" id="aqAnswerer">Waiting for a buzz…</div>
+        <div class="aq-value" id="aqValue"></div>
+        <div class="aq-queue" id="aqQueue"></div>
+      </div>
+
+      <div class="aq-actions">
+        <button class="btn-yes" id="yesBtn" disabled>✓ Correct</button>
+        <button class="btn-no" id="noBtn" disabled>✗ Incorrect</button>
+      </div>
+      <button class="nobody-link" id="nobodyBtn">Nobody got it — close question</button>
+    </div>
+  </div>
+
+<script>
+  /* =====================================================================
+     Shared game state lives in a Firebase Realtime Database, so every
+     player's device gets pushed live updates (no polling, no rate limits).
+     There's no login/password system beyond a unique username per game —
+     just a shared "game code" (a Firebase push key) that everyone's
+     device points at.
+  ===================================================================== */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDDxSQyhS5Jt2SI5OLpPRzbdC0SMfvulmU",
+    authDomain: "jeopordy-game.firebaseapp.com",
+    databaseURL: "https://jeopordy-game-default-rtdb.firebaseio.com",
+    projectId: "jeopordy-game",
+    storageBucket: "jeopordy-game.firebasestorage.app",
+    messagingSenderId: "793970602253",
+    appId: "1:793970602253:web:37fb7925235acf829f4044"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const gamesRootRef = db.ref('games');
+
+  const categories = [
+    "Hindi",
+    "A.R. Rahman",
+    "Illayaraja",
+    "Yuvan Shankar Raja",
+    "Miscellaneous"
+  ];
+  const pointValues = [100, 200, 300, 400];
+
+  // Clues/answers added so far. Categories or point values not listed here
+  // just show the "coming soon" placeholder when their tile is opened.
+  const questionBank = {
+    "A.R. Rahman": {
+      100: {
+        clue: "Flowers, please take some rest. She has come, she has come. If I means beauty, are you I's I's?",
+        answer: "Pookkale Sattru Oyvedungal"
+      },
+      200: {
+        clue: "Sandalwood Breeze is being punished by windows, is it fair? Is it fair? To Love's question, what is the eye's response? Is it silence, is it silence?",
+        answer: "Snadhana Thenralai"
+      },
+      300: {
+        clue: "White flowers all across the world, may you bloom, may you bloom. The waking up world, for world peace, wake up, wake up.",
+        answer: "Vellai Pookkal"
+      },
+      400: {
+        clue: "Come forward, my love, come; come my flesh, come my life. Come forward, my love, come; let us bloom like flowers.",
+        answer: "Munbe Vaa Anbe"
+      }
+    },
+    "Illayaraja": {
+      100: {
+        clue: "As the clouds wander, have they lost their way? Because it has lost its path, is it weeping? And is that coming down as rain?",
+        answer: "Ilaya Nilaa"
+      },
+      200: {
+        clue: "Life is not like a stage: one cannot simply walk away once the play is over. Relationships are not like a stream: one cannot simply change paths and journey elsewhere.",
+        answer: "Manram Vandha Thenral"
+      },
+      300: {
+        clue: "Under the influence of the queen who veils herself with a sari, my loving eyes travel in the palanquin.",
+        answer: "Raaja Raja Chozhan"
+      },
+      400: {
+        clue: "Is it fair for spoken words to simply vanish into the air? If the maiden looks at you after spreading the mat, does the bliss of love become an illusion?",
+        answer: "Sundari Kannal Oru"
+      }
+    },
+    "Yuvan Shankar Raja": {
+      100: {
+        clue: "My magician, you are the ultimate rascal. I am half of you — we make an amazing pair.",
+        answer: "Rowdy Baby"
+      },
+      200: {
+        clue: "Silly girl, silly girl, silly girl, a silly boy is crazily behind you.",
+        answer: "Loosu Penne"
+      },
+      300: {
+        clue: "Beside your name, I wrote mine too. I shielded it from the rain so it wouldn't wash away. Even after the rain stopped, I remained drenched.",
+        answer: "Mazhai Nindra Pinbum"
+      },
+      400: {
+        clue: "I will understand everything you say during the day, and I will understand even what you leave unsaid at night; I will insert my hair into your ear.",
+        answer: "Snegidhane"
+      }
+    },
+    "Miscellaneous": {
+      100: {
+        clue: "Ulagam azhiyum tharunam vanthaal, naan un arugilaeyae irukka virumbukiraen.",
+        answer: "Die with a Smile"
+      },
+      200: {
+        clue: "Aenenraal 'aptown phang' athai unggalukkuth tharappoagirathu.",
+        answer: "Uptown Funk"
+      },
+      300: {
+        clue: "Un udalvaagu ennai eerththullathu; oru visaiyaip poala athu ennai munnum pinnum izhukkirathu.",
+        answer: "Shape of You"
+      },
+      400: {
+        clue: "Marubakkaththilirunthu oru vanakkam. Naan aayiram muraiyaavathu azhaiththiruppaen.",
+        answer: "Hello"
+      }
+    }
+  };
+
+  // Firebase Realtime Database keys can't contain . # $ [ ] or /, so
+  // category names like "A.R. Rahman" need sanitizing when used as a
+  // tile's key (the readable category name is stored separately as a
+  // plain value, so nothing shown on screen is affected).
+  const FORBIDDEN_KEY_CHARS = /[.#$\[\]\/]/g;
+  function sanitizeKey(s) { return s.replace(FORBIDDEN_KEY_CHARS, '_'); }
+  function isValidUsername(name) { return !FORBIDDEN_KEY_CHARS.test(name); }
+
+  function tileKey(cat, pts) { return sanitizeKey(cat) + '__' + pts; }
+
+  function emptyState() {
+    const tiles = {};
+    categories.forEach(cat => pointValues.forEach(pts => { tiles[tileKey(cat, pts)] = false; }));
+    return { players: {}, tiles, activeQuestion: null };
+  }
+
+  // Firebase omits empty objects AND empty arrays entirely, so a freshly
+  // -read snapshot might be missing players/tiles if they're empty — and,
+  // critically, a brand-new question's buzzQueue starts as [], which
+  // Firebase drops from storage too. Without defaulting it back to an
+  // array here, every render that indexes into buzzQueue would throw and
+  // silently abort mid-render (this is what was blocking the question
+  // modal from opening — the tile highlight painted, then the crash
+  // stopped the rest of that render before the modal itself showed).
+  function normalizeState(raw) {
+    const s = raw || {};
+    s.players = s.players || {};
+    s.tiles = s.tiles || {};
+    if (s.activeQuestion) {
+      s.activeQuestion.buzzQueue = s.activeQuestion.buzzQueue || [];
+      s.activeQuestion.turnIndex = s.activeQuestion.turnIndex || 0;
+    } else {
+      s.activeQuestion = null;
+    }
+    return s;
+  }
+
+  /* ===================== Session state ===================== */
+  let gameId = null;
+  let gameRef = null;
+  let gameListener = null;
+  let myUsername = null;
+  let isHost = false;
+  let localState = emptyState();
+  let answerRevealed = false;
+
+  /* ===================== DOM refs ===================== */
+  const loginScreen = document.getElementById('loginScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  const adminView = document.getElementById('adminView');
+  const playerView = document.getElementById('playerView');
+  const hostTabBtn = document.getElementById('hostTabBtn');
+  const joinTabBtn = document.getElementById('joinTabBtn');
+  const hostCard = document.getElementById('hostCard');
+  const joinCard = document.getElementById('joinCard');
+
+  const hostUsernameInput = document.getElementById('hostUsernameInput');
+  const hostBtn = document.getElementById('hostBtn');
+  const hostError = document.getElementById('hostError');
+  const hostStatus = document.getElementById('hostStatus');
+  const codeReveal = document.getElementById('codeReveal');
+  const codeBox = document.getElementById('codeBox');
+  const copyCodeBtn = document.getElementById('copyCodeBtn');
+  const hostContinueBtn = document.getElementById('hostContinueBtn');
+
+  const joinCodeInput = document.getElementById('joinCodeInput');
+  const joinUsernameInput = document.getElementById('joinUsernameInput');
+  const joinBtn = document.getElementById('joinBtn');
+  const joinError = document.getElementById('joinError');
+  const joinStatus = document.getElementById('joinStatus');
+
+  const gameCodeBadge = document.getElementById('gameCodeBadge');
+  const board = document.getElementById('board');
+  const resetBtn = document.getElementById('resetBtn');
+  const leaveBtn = document.getElementById('leaveBtn');
+  const leaveBtnPlayer = document.getElementById('leaveBtnPlayer');
+  const scoreboardList = document.getElementById('scoreboardList');
+  const scoreboardEmpty = document.getElementById('scoreboardEmpty');
+
+  const overlay = document.getElementById('overlay');
+  const catLabel = document.getElementById('catLabel');
+  const pointsLabel = document.getElementById('pointsLabel');
+  const questionText = document.getElementById('questionText');
+  const placeholderNote = document.getElementById('placeholderNote');
+  const showAnswerBtn = document.getElementById('showAnswerBtn');
+  const answerText = document.getElementById('answerText');
+  const aqAnswerer = document.getElementById('aqAnswerer');
+  const aqValue = document.getElementById('aqValue');
+  const aqQueue = document.getElementById('aqQueue');
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const nobodyBtn = document.getElementById('nobodyBtn');
+
+  const myScoreValue = document.getElementById('myScoreValue');
+  const questionBox = document.getElementById('questionBox');
+  const qbCat = document.getElementById('qbCat');
+  const qbValue = document.getElementById('qbValue');
+  const qbClue = document.getElementById('qbClue');
+  const waitingText = document.getElementById('waitingText');
+  const buzzerBtn = document.getElementById('buzzerBtn');
+  const buzzerStatusText = document.getElementById('buzzerStatusText');
+
+  /* ===================== Tabs ===================== */
+  hostTabBtn.addEventListener('click', () => {
+    hostTabBtn.classList.add('active');
+    joinTabBtn.classList.remove('active');
+    hostCard.classList.add('active');
+    joinCard.classList.remove('active');
+  });
+  joinTabBtn.addEventListener('click', () => {
+    joinTabBtn.classList.add('active');
+    hostTabBtn.classList.remove('active');
+    joinCard.classList.add('active');
+    hostCard.classList.remove('active');
+  });
+
+  /* ===================== Board rendering (admin) ===================== */
+  categories.forEach(cat => {
+    const el = document.createElement('div');
+    el.className = 'category';
+    el.textContent = cat;
+    board.appendChild(el);
+  });
+
+  pointValues.forEach(points => {
+    categories.forEach(cat => {
+      const tile = document.createElement('button');
+      tile.className = 'tile';
+      tile.textContent = '$' + points;
+      tile.dataset.category = cat;
+      tile.dataset.points = points;
+      tile.dataset.key = tileKey(cat, points);
+      tile.addEventListener('click', () => startQuestion(tile));
+      board.appendChild(tile);
+    });
+  });
+
+  function applyStateToBoard() {
+    const aq = localState.activeQuestion;
+    document.querySelectorAll('.tile').forEach(t => {
+      const used = !!localState.tiles[t.dataset.key];
+      const isActive = aq && aq.key === t.dataset.key;
+      t.classList.toggle('used', used);
+      t.classList.toggle('active-tile', !!isActive);
+      t.classList.toggle('locked', !!aq && !isActive);
+      t.textContent = used ? '' : '$' + t.dataset.points;
+    });
+  }
+
+  function renderScoreboard() {
+    const aq = localState.activeQuestion;
+    const currentAnswerer = aq && aq.buzzQueue[aq.turnIndex] ? aq.buzzQueue[aq.turnIndex].name : null;
+    const entries = Object.entries(localState.players || {}).sort((a, b) => b[1] - a[1]);
+    scoreboardList.innerHTML = '';
+    scoreboardEmpty.style.display = entries.length === 0 ? 'block' : 'none';
+    entries.forEach(([name, score]) => {
+      const chip = document.createElement('div');
+      chip.className = 'score-chip' + (name === currentAnswerer ? ' on-the-clock' : '');
+      const nameEl = document.createElement('div');
+      nameEl.className = 'p-name';
+      nameEl.textContent = name;
+      const scoreEl = document.createElement('div');
+      scoreEl.className = 'p-score';
+      scoreEl.textContent = '$' + score;
+      chip.appendChild(nameEl);
+      chip.appendChild(scoreEl);
+      scoreboardList.appendChild(chip);
+    });
+  }
+
+  /* ===================== Active-question modal (admin) ===================== */
+  function renderAdminModal() {
+    const aq = localState.activeQuestion;
+    if (!aq) {
+      overlay.classList.remove('active');
+      return;
+    }
+    overlay.classList.add('active');
+
+    catLabel.textContent = aq.category;
+    pointsLabel.textContent = '$' + aq.currentValue + (aq.currentValue !== aq.points ? ' (started at $' + aq.points + ')' : '');
+
+    const entry = questionBank[aq.category] && questionBank[aq.category][aq.points];
+    if (entry) {
+      questionText.textContent = entry.clue;
+      answerText.textContent = entry.answer;
+      placeholderNote.style.display = 'none';
+      showAnswerBtn.style.display = 'inline-block';
+    } else {
+      questionText.textContent = '';
+      answerText.textContent = '';
+      placeholderNote.style.display = 'block';
+      showAnswerBtn.style.display = 'none';
+    }
+    answerText.classList.toggle('revealed', answerRevealed);
+    showAnswerBtn.textContent = answerRevealed ? 'Hide Answer' : 'Show Answer';
+
+    const current = aq.buzzQueue[aq.turnIndex];
+    if (current) {
+      aqAnswerer.textContent = current.name;
+      yesBtn.disabled = false;
+      noBtn.disabled = false;
+    } else {
+      aqAnswerer.textContent = 'Waiting for a buzz…';
+      yesBtn.disabled = true;
+      noBtn.disabled = true;
+    }
+    aqValue.textContent = 'Worth $' + aq.currentValue + ' right now';
+    const waitingNames = aq.buzzQueue.slice(aq.turnIndex + 1).map(b => b.name);
+    aqQueue.textContent = waitingNames.length ? ('Up next: ' + waitingNames.join(', ')) : '';
+  }
+
+  /* ===================== Player screen rendering ===================== */
+  // Tracks the question (by key) this device has already buzzed for.
+  // This is checked in ADDITION to the server's buzzQueue so a stale poll
+  // response arriving mid-buzz can never flip the button back to enabled
+  // and let someone buzz a second time on the same question.
+  let myBuzzLockKey = null;
+
+  function renderPlayerView() {
+    const aq = localState.activeQuestion;
+    const myScore = (localState.players && localState.players[myUsername]) || 0;
+    myScoreValue.textContent = '$' + myScore;
+
+    if (!aq) {
+      myBuzzLockKey = null;
+      questionBox.classList.remove('active');
+      waitingText.textContent = 'Waiting for the host to start a question…';
+      waitingText.style.display = 'block';
+      buzzerBtn.disabled = true;
+      buzzerStatusText.textContent = '';
+      return;
+    }
+
+    const entry = questionBank[aq.category] && questionBank[aq.category][aq.points];
+    qbCat.textContent = aq.category;
+    qbValue.textContent = 'Worth $' + aq.currentValue;
+    qbClue.textContent = entry ? entry.clue : 'The host has this question — listen up!';
+    questionBox.classList.add('active');
+    waitingText.style.display = 'none';
+
+    const iBuzzed = myBuzzLockKey === aq.key || aq.buzzQueue.some(b => b.name === myUsername);
+    const current = aq.buzzQueue[aq.turnIndex];
+
+    if (current && current.name === myUsername) {
+      buzzerBtn.disabled = true;
+      buzzerStatusText.textContent = "It's your turn — answer out loud!";
+    } else if (iBuzzed) {
+      const myPos = aq.buzzQueue.findIndex(b => b.name === myUsername);
+      buzzerBtn.disabled = true;
+      if (myPos <= aq.turnIndex) {
+        buzzerStatusText.textContent = 'You already had your turn on this one.';
+      } else {
+        buzzerStatusText.textContent = "You're buzzed in — position " + (myPos - aq.turnIndex + 1) + ' in line.';
+      }
+    } else {
+      buzzerBtn.disabled = false;
+      buzzerStatusText.textContent = current ? (current.name + ' is answering — buzz in as backup!') : 'Buzz in now!';
+    }
+  }
+
+  function renderAll() {
+    if (isHost) {
+      applyStateToBoard();
+      renderScoreboard();
+      renderAdminModal();
+    } else {
+      renderPlayerView();
+    }
+  }
+
+  /* ===================== Sync ===================== */
+  // Attaches a live listener on the whole game node — Firebase pushes
+  // updates to every connected device the instant anything changes, so
+  // there's no polling and nothing to rate-limit.
+  function attachGameListener() {
+    detachGameListener();
+    gameListener = gameRef.on('value', snapshot => {
+      localState = normalizeState(snapshot.val());
+      renderAll();
+    }, err => {
+      console.error('listener error', err);
+    });
+  }
+
+  function detachGameListener() {
+    if (gameRef && gameListener) { gameRef.off('value', gameListener); }
+    gameListener = null;
+  }
+
+  /* ===================== Host flow ===================== */
+  hostBtn.addEventListener('click', async () => {
+    const name = hostUsernameInput.value.trim();
+    hostError.textContent = '';
+    if (!name) { hostError.textContent = 'Please enter a username.'; return; }
+    if (!isValidUsername(name)) { hostError.textContent = "Usernames can't contain . # $ [ ] or /"; return; }
+
+    hostBtn.disabled = true;
+    hostStatus.textContent = 'Creating game…';
+    try {
+      const state = emptyState();
+      state.players[name] = 0;
+      const newRef = gamesRootRef.push();
+      await newRef.set(state);
+      gameId = newRef.key;
+      gameRef = newRef;
+      myUsername = name;
+      isHost = true;
+      localState = state;
+      hostStatus.textContent = '';
+      codeBox.textContent = gameId;
+      codeReveal.classList.add('active');
+    } catch (e) {
+      hostStatus.textContent = '';
+      hostError.textContent = "Couldn't start a game right now. Details: " + e.message;
+      console.error(e);
+    } finally {
+      hostBtn.disabled = false;
+    }
+  });
+
+  copyCodeBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(gameId);
+      copyCodeBtn.textContent = 'Copied!';
+      setTimeout(() => { copyCodeBtn.textContent = 'Copy Code'; }, 1500);
+    } catch (e) {
+      // Clipboard API may be unavailable — the code is still visible to select/copy manually.
+    }
+  });
+
+  hostContinueBtn.addEventListener('click', () => enterGameScreen());
+
+  /* ===================== Join flow ===================== */
+  joinBtn.addEventListener('click', async () => {
+    const code = joinCodeInput.value.trim();
+    const name = joinUsernameInput.value.trim();
+    joinError.textContent = '';
+
+    if (!code) { joinError.textContent = 'Please enter the game code.'; return; }
+    if (!name) { joinError.textContent = 'Please enter a username.'; return; }
+    if (!isValidUsername(name)) { joinError.textContent = "Usernames can't contain . # $ [ ] or /"; return; }
+
+    joinBtn.disabled = true;
+    joinStatus.textContent = 'Joining game…';
+    try {
+      const candidateRef = gamesRootRef.child(code);
+      const gameSnap = await candidateRef.once('value');
+      if (!gameSnap.exists()) {
+        joinStatus.textContent = '';
+        joinError.textContent = "That game code wasn't found. Double-check it with your host.";
+        joinBtn.disabled = false;
+        return;
+      }
+
+      // Transaction so two people joining with the same name at the same
+      // instant can't both slip through — only one commits.
+      const result = await candidateRef.child('players').transaction(players => {
+        players = players || {};
+        const existing = Object.keys(players).find(p => p.toLowerCase() === name.toLowerCase());
+        if (existing) return; // abort — name taken
+        players[name] = 0;
+        return players;
+      });
+
+      if (!result.committed) {
+        joinStatus.textContent = '';
+        joinError.textContent = `"${name}" is already in this game. Pick a different username.`;
+        joinBtn.disabled = false;
+        return;
+      }
+
+      gameId = code;
+      gameRef = candidateRef;
+      myUsername = name;
+      isHost = false;
+      localState = normalizeState((await candidateRef.once('value')).val());
+      joinStatus.textContent = '';
+      enterGameScreen();
+    } catch (e) {
+      joinStatus.textContent = '';
+      joinError.textContent = "Couldn't reach the game right now. Details: " + e.message;
+      console.error(e);
+    } finally {
+      joinBtn.disabled = false;
+    }
+  });
+
+  /* ===================== Enter / leave game ===================== */
+  function enterGameScreen() {
+    gameCodeBadge.textContent = 'Game Code: ' + gameId + (isHost ? ' (Admin)' : '');
+    loginScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+    adminView.style.display = isHost ? 'flex' : 'none';
+    playerView.style.display = isHost ? 'none' : 'flex';
+    answerRevealed = false;
+    renderAll();
+    attachGameListener();
+  }
+
+  function resetLoginForms() {
+    hostUsernameInput.value = '';
+    joinCodeInput.value = '';
+    joinUsernameInput.value = '';
+    hostError.textContent = '';
+    joinError.textContent = '';
+    codeReveal.classList.remove('active');
+  }
+
+  function leaveGame() {
+    detachGameListener();
+    gameId = null;
+    gameRef = null;
+    myUsername = null;
+    isHost = false;
+    localState = emptyState();
+    overlay.classList.remove('active');
+    resetLoginForms();
+    gameScreen.style.display = 'none';
+    loginScreen.style.display = 'flex';
+  }
+
+  leaveBtn.addEventListener('click', leaveGame);
+  leaveBtnPlayer.addEventListener('click', leaveGame);
+
+  /* ===================== Admin: start / resolve a question ===================== */
+  // Admin actions are only ever performed from Kash's one device, so
+  // there's no concurrent-writer risk here — plain writes (not
+  // transactions) are safe and simpler.
+  async function startQuestion(tile) {
+    if (!isHost) return;
+    if (localState.activeQuestion) return; // one question at a time
+    if (tile.classList.contains('used')) return;
+
+    const category = tile.dataset.category;
+    const points = Number(tile.dataset.points);
+    const key = tile.dataset.key;
+    answerRevealed = false;
+
+    try {
+      await gameRef.child('activeQuestion').set({
+        key, category, points,
+        currentValue: points,
+        buzzQueue: [],
+        turnIndex: 0
+      });
+    } catch (e) {
+      console.error(e);
+      alert("Couldn't start that question. Details: " + e.message);
+    }
+  }
+
+  showAnswerBtn.addEventListener('click', () => {
+    answerRevealed = !answerRevealed;
+    renderAdminModal();
+  });
+
+  yesBtn.addEventListener('click', async () => {
+    try {
+      const aq = localState.activeQuestion;
+      if (!aq) return;
+      const current = aq.buzzQueue[aq.turnIndex];
+      const updates = {
+        ['tiles/' + aq.key]: true,
+        activeQuestion: null
+      };
+      if (current) {
+        updates['players/' + current.name] = (localState.players[current.name] || 0) + aq.currentValue;
+      }
+      await gameRef.update(updates);
+    } catch (e) {
+      console.error(e);
+      alert("Couldn't save that score. Details: " + e.message);
+    }
+  });
+
+  noBtn.addEventListener('click', async () => {
+    try {
+      const aq = localState.activeQuestion;
+      if (!aq) return;
+      const current = aq.buzzQueue[aq.turnIndex];
+      const updates = {
+        'activeQuestion/turnIndex': aq.turnIndex + 1,
+        'activeQuestion/currentValue': Math.max(0, Math.round(aq.currentValue / 2))
+      };
+      if (current) {
+        updates['players/' + current.name] = (localState.players[current.name] || 0) - aq.currentValue;
+      }
+      await gameRef.update(updates);
+    } catch (e) {
+      console.error(e);
+      alert("Couldn't update that. Details: " + e.message);
+    }
+  });
+
+  nobodyBtn.addEventListener('click', async () => {
+    try {
+      const aq = localState.activeQuestion;
+      if (!aq) return;
+      await gameRef.update({
+        ['tiles/' + aq.key]: true,
+        activeQuestion: null
+      });
+    } catch (e) {
+      console.error(e);
+      alert("Couldn't close that question. Details: " + e.message);
+    }
+  });
+
+  /* ===================== Player: buzz in ===================== */
+  buzzerBtn.addEventListener('click', async () => {
+    const aqKeyAtClick = localState.activeQuestion && localState.activeQuestion.key;
+    if (!aqKeyAtClick || myBuzzLockKey === aqKeyAtClick) return; // already locked for this question
+    myBuzzLockKey = aqKeyAtClick; // lock immediately so no race can re-enable the button
+    buzzerBtn.disabled = true;
+    try {
+      // Transaction: multiple devices can hit this at once, so Firebase
+      // retries the update against the current server value until it
+      // commits cleanly — this is what makes buzz order fair and safe.
+      await gameRef.child('activeQuestion').transaction(aq => {
+        if (!aq) return aq;
+        aq.buzzQueue = aq.buzzQueue || [];
+        if (aq.buzzQueue.some(b => b.name === myUsername)) return aq;
+        aq.buzzQueue.push({ name: myUsername, ts: Date.now() });
+        return aq;
+      });
+    } catch (e) {
+      console.error(e);
+      myBuzzLockKey = null; // the buzz didn't register — safe to let them try again
+      buzzerBtn.disabled = false;
+      alert("Couldn't register your buzz. Details: " + e.message);
+    }
+  });
+
+  /* ===================== Board controls (admin) ===================== */
+  resetBtn.addEventListener('click', async () => {
+    try {
+      const freshTiles = {};
+      categories.forEach(cat => pointValues.forEach(pts => { freshTiles[tileKey(cat, pts)] = false; }));
+      await gameRef.update({ tiles: freshTiles, activeQuestion: null });
+    } catch (e) {
+      console.error(e);
+      alert("Couldn't reset the board. Details: " + e.message);
+    }
+  });
+</script>
+
+</body>
+</html>
